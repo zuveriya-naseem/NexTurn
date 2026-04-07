@@ -1,14 +1,16 @@
 import { Navigate } from "react-router-dom";
-import { getSession } from "../auth/auth";
+import { useAuth } from "../auth/AuthContext";
 
 export default function ProtectedRoute({ role, children }) {
-  const session = getSession();
+  const { user, loading } = useAuth();
 
-  if (!session) return <Navigate to="/auth/login" replace />;
+  if (loading) return <div className="p-10 text-center text-zinc-500">Loading...</div>;
 
-  if (role && session.role !== role) {
+  if (!user) return <Navigate to="/auth/login" replace />;
+
+  if (role && user.role !== role) {
     // if logged in but wrong role, send to their dashboard
-    return <Navigate to={session.role === "admin" ? "/admin" : "/student"} replace />;
+    return <Navigate to={user.role === "admin" ? "/admin" : "/student"} replace />;
   }
 
   return children;

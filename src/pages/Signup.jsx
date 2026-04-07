@@ -1,24 +1,30 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signupUser } from "../auth/auth";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Signup() {
   const nav = useNavigate();
+  const { register } = useAuth();
   const [role, setRole] = useState("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
     setErr("");
+    setLoading(true);
 
-    const res = signupUser({ role, name, email, password });
-    if (!res.ok) return setErr(res.message);
+    const res = await register(name || "User", email, password, role);
+    setLoading(false);
 
-    nav("/auth/login");
+    if (!res.success) return setErr(res.error);
+
+    // After success, they are logged in since our context sets the user
+    nav(role === "admin" ? "/admin" : "/student");
   }
 
   return (

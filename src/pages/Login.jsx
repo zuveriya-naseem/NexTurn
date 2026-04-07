@@ -1,22 +1,32 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../auth/auth";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Login() {
   const nav = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
     setErr("");
+    setLoading(true);
 
-    const res = loginUser({ email, password });
-    if (!res.ok) return setErr(res.message);
+    const res = await login(email, password);
+    setLoading(false);
+    
+    if (!res.success) return setErr(res.error);
 
-    const role = res.session.role;
-    nav(role === "admin" ? "/admin" : "/student");
+    // We can fetch from localstorage because auth context set it, 
+    // or assume user state reflects it. The context sets `user`.
+    // Instead of parsing here, let ProtectedRoute handle it by just steering to right place.
+    // However, we don't have role immediately without waiting for context update if we don't get user from result.
+    // AuthContext login doesn't return user, let's just go home and let ProtectedRoute bounce us, or get role from localstorage.
+    const userRole = JSON.parse(localStorage.getItem('user'))?.role;
+    nav(userRole === "admin" ? "/admin" : "/student");
   }
 
   return (
