@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'nexturn_secret_key_dev'; // In production, use environment variable
 
 // Setup uploads directory
@@ -344,7 +344,11 @@ app.get('/api/feedback', authenticateToken, (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('NexTurn API is running 🚀');
+});
+
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
