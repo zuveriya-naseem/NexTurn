@@ -32,6 +32,10 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir));
 
+// Serve frontend static files
+const distDir = path.join(process.cwd(), 'dist');
+app.use(express.static(distDir));
+
 // --- Authentication Middleware ---
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -344,8 +348,13 @@ app.get('/api/feedback', authenticateToken, (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.send('NexTurn API is running 🚀');
+});
+
+// React Router fallback (must be the LAST route before listen)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
 // Start server
