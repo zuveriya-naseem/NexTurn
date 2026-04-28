@@ -353,7 +353,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // React Router fallback (must be the LAST route before listen)
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
